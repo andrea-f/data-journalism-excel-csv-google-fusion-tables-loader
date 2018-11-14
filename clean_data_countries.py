@@ -67,8 +67,6 @@ class DataCleaner(object):
         column_name = operations_data["replace"]["column_name"]
         excel_data = excel_original_data.copy()
         countries = excel_data[column_name].values
-        api_key = self.read_config_file(CREDENTIALS_FILE)["mapquest_api_key"]
-        countries_geocoded = [None] * len(countries)
         removed_count = 0
         for key_clean, value in operations_data["replace"]["data"].iteritems():
             print "Replacing {}".format(key_clean)
@@ -76,9 +74,6 @@ class DataCleaner(object):
                 current_country = countries[c]
                 if key_clean in current_country:
                     if isinstance(value, unicode):
-                        # Geocode countries
-                        countries_geocoded[c] = self.geocode_address(
-                            current_country, api_key)
                         excel_data[column_name] = excel_data[column_name].replace({key_clean: value})
                     elif isinstance(value, list) and operations_data["replace"]["split_data_keys_in_list"]:
                         # Value of list after key has been matched in the Excel file.
@@ -108,20 +103,40 @@ class DataCleaner(object):
                         except:
                             print "{} not found in Excel data".format(key_clean)
                     break
-                else:
-                    # Geocode unmodified countries
-                    countries_geocoded[c] = self.geocode_address(
-                        current_country, api_key)
+        return excel_data
 
+    def geocode_countries(self, excel_original_data, operations_data, api_key):
+        """
+        Assigns a geocode address to a list of countries.
+
+        :param addresses:
+            Strings of location/address/country to geocode, list.
+        
+        :param api_key:
+            MapQuest API key, string.
+
+        Return list of geocoded countries.
+        """
         geocolumn = operations_data["replace"]["geocode_column"]
-        excel_data[geocolumn] = pandas.Series(countries_geocoded)
+        column_name = operations_data["replace"]["column_name"]
+        excel_data = excel_original_data.copy()
+        countries = excel_data[column_name].values
+        geocoded = []
+        count = 0
+        # Geocode countries
+        for address in countries:
+            geocodes = self.geocode_address(address, api_key)
+            #if not geocodes in geocoded:
+            geocoded.append(geocodes)
+            print address, geocodes, count
+            count += 1
+        excel_data[geocolumn] = pandas.Series(geocoded)
         # Raise error if there is a mismatch between the geocoded column length
-        # And the initial countries list.
-        if len(excel_data[geocolumn]) != (len(countries) - removed_count):
+        # And the initial countries list
+        if len(excel_data[geocolumn]) != len(countries):
             raise Exception("Mismatch between {}({}) and {}({})".format(
                 geocolumn, len(excel_data[geocolumn]), column_name, len(countries)))
         return excel_data
-
 
     def geocode_address(self, address, api_key):
         """
@@ -132,6 +147,9 @@ class DataCleaner(object):
 
         :param api_key:
             MapQuest API key, string.
+
+        :param count:
+            Keeps track of made requests to geocode API, int.
 
         Return string with "longitude latitude"
         """
@@ -177,15 +195,24 @@ class DataCleaner(object):
             Location where the original Excel file is, string.
         """
         operations_data = self.read_config_file()
+        api_key = self.read_config_file(CREDENTIALS_FILE)["mapquest_api_key"]
         if not excel_file:
             excel_file = operations_data["replace"]["input_file_name"]
         if not self.excel_file:
             self.excel_file = excel_file
+        # Apply transformations
         excel_data = self.read_excel_file(excel_file)
         modified_excel_file = self.replace_dissolved_countries(
             operations_data, excel_data)
         self.save_file(modified_excel_file,
                        operations_data["replace"]["output_file_name"])
+        # Geocode addresses
+        cleaned_excel_data = self.read_excel_file(
+            operations_data["replace"]["output_file_name"])
+        geocoded_excel_data = self.geocode_countries(cleaned_excel_data, operations_data, api_key)
+        self.save_file(geocoded_excel_data,
+                       operations_data["replace"]["output_file_name"])
+        
 
 
 if __name__ == "__main__":

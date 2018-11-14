@@ -38,8 +38,8 @@ class GoogleFusionTablesOAuth(object):
         Reads Google Fusion Tables credentials file.
         """
         with open(config_file, 'r') as fn:
-            return fn.read()
-            #return json.loads(fn.read())
+            #return fn.read()
+            return json.loads(fn.read())
 
 
     def retrieve_tokens(self):
@@ -100,7 +100,7 @@ class GoogleFusionTablesOAuth(object):
         return response
         
 
-    def create_table(self, name, description, columns, file_name, data=None, make_public=True):
+    def create_table(self, name, description, columns, file_name, data=None, make_public=False):
         """
         Creates table in Google Fusion.
         """
@@ -120,7 +120,7 @@ class GoogleFusionTablesOAuth(object):
         permissions.create(fileId=result["tableId"], body={"emailAddress": "mailandreafassina@gmail.com","type": "user", "role": "writer"}, sendNotificationEmail=False).execute()
         if make_public:
             public_permission = {'type': 'anyone', 'role': 'reader'}
-            drive_service.permissions().insert(
+            permissions.insert(
                 fileId=result["tableId"], body=public_permission).execute()
         media_body = MediaFileUpload(
             filename=file_name, mimetype="application/octet-stream")
@@ -130,7 +130,7 @@ class GoogleFusionTablesOAuth(object):
 if __name__ == "__main__":
     fusion = GoogleFusionTablesOAuth()
     config = fusion.read_config_file(config_file=CONFIG_FILE)
-    columns = config['replace']['fusion']['table_columns']
+    columns = config['replace']['fusion']['schema']
     fn = config['replace']['fusion']['csv_input_file']
     table_name = config['replace']['fusion']['table_name']
     description = config['replace']['fusion']['description']
