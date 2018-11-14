@@ -7,6 +7,7 @@ This repo is Python code to:
 - For each country fetch geocoordinates from MapQuest
 - Save the resulting Excel in a new Excel file and a CSV one.
 - Load CSV into Google Fusion Table
+- The input and resulting output files are in the `data` folder.
 
 For the Data Journalism exercise at Sapienza, the resulting map is in: https://www.google.com/fusiontables/DataSource?docid=19cHImENsTkRAz4F0Kz54ICEJo5IDVQlQ6UkiyKMd
 
