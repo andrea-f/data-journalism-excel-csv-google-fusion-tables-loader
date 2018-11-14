@@ -1,0 +1,68 @@
+{
+    "replace": 
+    {
+        "input_file_name": "./data/unclean_stranieri_roma_2016.xlsx",
+        "column_name": "Cittadinanza",
+        "data": {
+            "EX JUGOSLAVIA": [
+                "BOSNIA-ERZEGOVINA",
+                "KOSOVO", 
+                "REP. DI MACEDONIA",
+                "MONTENEGRO",
+                "REP. DI SERBIA"
+            ], 
+            "EX SERBIA E MONTENEGRO": [
+                "REP. DI SERBIA",
+                "MONTENEGRO"
+            ],
+            "EX CECOSLOVACCHIA": [
+                "REP. CECA",
+                "SLOVACCHIA"
+            ],
+            "EX COREA": [
+                "REP. DI COREA",
+                "REP. POP. DEM. DI COREA"
+            ],
+            "TERR. DELL'AUTON. PALESTINESE": "PALESTINA"
+        },
+        "split_data_keys_in_list": true,
+        "sum_column_names_in_list": ["M", "F"],
+        "output_file_name": "./data/Stranieri Roma 2016 3.xlsx",
+        "geocode_column": "Paesi",
+        "fusion": {
+            "csv_input_file": "./data/Stranieri Roma 2016 3.csv",
+            "description": "Mappatura della popolazione straniera residente a Roma distinta per sesso e paese di provenienza",
+            "table_name": "Popolazione straniera residente a Roma nel 2016",
+            "endpoint_url": "https://fusiontables.google.com/data?docid={}#rows:id=1",
+            "schema": [{
+                    "name": "ID",
+                    "type": "NUMBER"
+                },
+                {
+                    "name": "Cittadinanza",
+                    "type": "STRING"
+                },
+                {
+                    "name": "Continente Politico",
+                    "type": "STRING"
+                },
+                {
+                    "name": "M",
+                    "type": "NUMBER"
+                },
+                {
+                    "name": "F",
+                    "type": "NUMBER"
+                },
+                {
+                    "name": "MF",
+                    "type": "NUMBER"
+                },
+                {
+                    "name": "Paesi",
+                    "type": "LOCATION"
+                }
+            ]
+        }
+    }
+}
