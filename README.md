@@ -1,4 +1,4 @@
-# Data Journalism loading Excel and CSV in Google Fusion after finding Geocoordinates using MapQuest.
+# Data Journalism exercise with Python loading Excel and CSV in Google Fusion after finding Geocoordinates using MapQuest.
 
 This repo is Python code to:
 - Read a Excel file.
